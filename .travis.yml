@@ -1,15 +1,98 @@
 language: c
 
-compiler:
-  - clang
-  - gcc
+git:
+  depth: 5
 
-os:
-  - linux
+addons:
+  apt:
+    update: true
+    packages:
+      - pkg-config
+      - libncurses5-dev
+  homebrew:
+    update: true
+    packages:
+      - pkg-config
+      - ncurses
+
+matrix:
+  jobs:
+    include:
+      # Standard builds
+      - name: Bionic, GCC (AMD64)
+        os: linux
+        dist: bionic
+        arch: amd64
+        compiler: gcc
+      - name: Bionic, Clang (AMD64)
+        os: linux
+        dist: bionic
+        arch: amd64
+        compiler: clang
+      - name: High Sierra, Clang (AMD64)
+        os: osx
+        osx_image: xcode10.1
+        arch: amd64
+        compiler: clang
+      # Undefined Behavior sanitizer
+      - name: UBsan, Bionic, GCC (AMD64)
+        os: linux
+        dist: bionic
+        arch: amd64
+        compiler: gcc
+        env:
+          - CFLAGS=-fsanitize=undefined -fno-sanitize-recover
+          - CXXFLAGS=-fsanitize=undefined -fno-sanitize-recover
+          - LDFLAGS=-fsanitize=undefined -fno-sanitize-recover
+      - name: UBsan, Bionic, Clang (AMD64)
+        os: linux
+        dist: bionic
+        arch: amd64
+        compiler: clang
+        env:
+          - CFLAGS=-fsanitize=undefined -fno-sanitize-recover=all
+          - CXXFLAGS=-fsanitize=undefined -fno-sanitize-recover=all
+          - LDFLAGS=-fsanitize=undefined -fno-sanitize-recover=all
+      - name: UBsan, High Sierra, Clang (AMD64)
+        os: osx
+        osx_image: xcode10.1
+        arch: amd64
+        compiler: clang
+        env:
+          - CFLAGS=-fsanitize=undefined -fno-sanitize-recover=all
+          - CXXFLAGS=-fsanitize=undefined -fno-sanitize-recover=all
+          - LDFLAGS=-fsanitize=undefined -fno-sanitize-recover=all
+      # Address sanitizer
+      - name: Asan, Bionic, GCC (AMD64)
+        os: linux
+        dist: bionic
+        arch: amd64
+        compiler: gcc
+        env:
+          - CFLAGS=-fsanitize=address -fno-sanitize-recover
+          - CXXFLAGS=-fsanitize=address -fno-sanitize-recover
+          - LDFLAGS=-fsanitize=address -fno-sanitize-recover
+      - name: Asan, Bionic, Clang (AMD64)
+        os: linux
+        dist: bionic
+        arch: amd64
+        compiler: clang
+        env:
+          - CFLAGS=-fsanitize=address -fno-sanitize-recover=all
+          - CXXFLAGS=-fsanitize=address -fno-sanitize-recover=all
+          - LDFLAGS=-fsanitize=address -fno-sanitize-recover=all
+      - name: Asan, High Sierra, Clang (AMD64)
+        os: osx
+        osx_image: xcode10.1
+        arch: amd64
+        compiler: clang
+        env:
+          - CFLAGS=-fsanitize=address -fno-sanitize-recover=all
+          - CXXFLAGS=-fsanitize=address -fno-sanitize-recover=all
+          - LDFLAGS=-fsanitize=address -fno-sanitize-recover=all
 
 script:
   - ./autogen.sh
   - ./configure --with-no-install
   - make
   - make tests
-
